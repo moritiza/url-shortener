@@ -1,0 +1,74 @@
+version: "3.9"
+services:
+  app:
+    container_name: url_shortener_app
+    build: '.'
+    networks:
+      - frontend
+      - backend
+    ports:
+      - 9000:9000
+    links:
+      - postgres
+      - postgres-test
+    restart: always
+
+  postgres:
+    container_name: url_shortener_postgres
+    image: postgres:latest
+    networks:
+      - backend
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: moritiza
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: moritiza
+      PGDATA: /data/postgres
+    restart: always
+  
+  swagger:
+    container_name: url_shortener_swagger
+    image: swaggerapi/swagger-ui:latest
+    networks:
+      - backend
+    expose:
+      - 8080
+    ports: 
+      - 8888:8080
+    volumes: 
+      - ./swagger.yml:/swagger.yml
+    environment:
+      BASE_URL: /swagger
+      SWAGGER_JSON: /swagger.yml
+    restart: always
+
+  postgres-test:
+    container_name: url_shortener_test_postgres
+    image: postgres:latest
+    networks:
+      - backend
+    expose:
+      - 5432
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: moritiza
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: moritiza
+      PGDATA: /data/postgres
+    restart: always
+
+volumes:
+  postgres_data:
+  postgres_test_data:
+
+networks:
+  frontend:
+  backend:

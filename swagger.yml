@@ -1,0 +1,90 @@
+openapi: "3.0.0"
+
+info:
+    title: URL Shortener API
+    description: API for URL shortenet written in Go language
+
+servers:
+    - url: http://localhost:9000
+      description: Development server[Staging/Production are different from this]
+
+produces:
+    - application/json
+
+consumes:
+    - application/json
+
+host: localhost:9000
+
+paths:
+    /api/create-url:
+        post:
+            summary: انجام عملیات ثبت آدرس
+            description: میتوانید آدرس مورد نظر را اضافه کرده و آدرس کوتاه شده آن را دریافت کنید.
+            tags:
+                - Url
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CreateUrl'
+                        examples:
+                            CreateUrl:
+                                value:
+                                    title: "google"
+                                    original_url: "http://google.com"
+            responses:
+                '201':
+                    description: created
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": true,
+                                \"message\": \"created\",
+                                \"errors\": null,
+                                \"data\": {
+                                    \"title\": \"google\",
+                                    \"original_url\": \"http://google.com\",
+                                    \"short_url\": \"localhost:9000/QSsfgcEt\"
+                                }
+                            }"
+
+                '400':
+                    description: bad request
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": false,
+                                \"message\": \"bad request\",
+                                \"errors\": [
+                                  \"Title is a required field!\"
+                                ],
+                                \"data\": null
+                            }"
+
+                '500':
+                    description: error
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": false,
+                                \"message\": \"error\",
+                                \"errors\": \"an error has occurred\",
+                                \"data\": null
+                            }"
+
+
+components:
+    schemas:
+        CreateUrl:
+            title: Create Url
+            type: object
+            properties:
+                title:
+                  type: string
+                original_url:
+                  type: string
+            required:
+                - mobile
+                - original_url
