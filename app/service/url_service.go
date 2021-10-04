@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"net/http"
 	"os"
 
 	"github.com/moritiza/url-shortener/app/dto"
@@ -14,7 +13,7 @@ import (
 )
 
 type UrlService interface {
-	CreateShortUrl(r *http.Request, url dto.CreateShortUrl) (dto.CreateShortUrl, error)
+	CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl, error)
 	Redirect(urlName string) (string, error)
 }
 
@@ -33,7 +32,7 @@ func NewUrlService(l logrus.Logger, ur repository.UrlRepository) UrlService {
 }
 
 // CreateShortUrl do creating short url steps
-func (us *urlService) CreateShortUrl(r *http.Request, url dto.CreateShortUrl) (dto.CreateShortUrl, error) {
+func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl, error) {
 	// Generate random name for given url
 	randString := helper.GetRandomString()
 

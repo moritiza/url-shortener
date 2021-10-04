@@ -55,7 +55,7 @@ func (uh *urlHandler) CreateShortUrl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Call url service CreateShortUrl method
-	url, err = uh.urlService.CreateShortUrl(r, url)
+	url, err = uh.urlService.CreateShortUrl(url)
 	if err != nil {
 		// Return 500 error for unhandled errors
 		helper.FailureResponse(w, "error", err.Error(), nil, http.StatusInternalServerError)
