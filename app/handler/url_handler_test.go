@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/gorilla/mux"
@@ -83,7 +84,8 @@ func TestRedirect(t *testing.T) {
 		TestCreateShortUrl(t)
 	}
 
-	urlName := string(shortUrl[len(shortUrl)-8:])
+	shortUrlParts := strings.Split(shortUrl, "/")
+	urlName := string(shortUrlParts[len(shortUrlParts)-1])
 
 	req, err := http.NewRequest(http.MethodGet, "/"+urlName, nil)
 	if err != nil {

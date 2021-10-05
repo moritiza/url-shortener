@@ -11,6 +11,9 @@ services:
     links:
       - postgres
       - postgres-test
+    depends_on:
+      postgres:
+        condition: service_healthy
     restart: always
 
   postgres:
@@ -29,6 +32,10 @@ services:
       POSTGRES_PASSWORD: 1234
       POSTGRES_DB: moritiza
       PGDATA: /data/postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      timeout: 15s
+      retries: 3
     restart: always
   
   swagger:

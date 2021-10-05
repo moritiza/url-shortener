@@ -33,31 +33,38 @@ func NewUrlService(l logrus.Logger, ur repository.UrlRepository) UrlService {
 
 // CreateShortUrl do creating short url steps
 func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl, error) {
-	// Generate random name for given url
-	randString := helper.GetRandomString()
-
+	// Create url entity from CreateShortUrl DTO
 	var ue = entity.Url{
 		Title:       url.Title,
 		OriginalUrl: url.OriginalUrl,
-		UrlName:     randString,
 	}
 
 	// Insert new url to urls table
-	db := us.urlRepository.Create(ue)
+	id, db := us.urlRepository.Create(ue)
 	if db.Error != nil {
 		us.logger.Error("Error: ", db.Error)
 		return dto.CreateShortUrl{}, db.Error
 	}
 
+	// Create base62 urlName with inserted url id
+	urlName := helper.ToBase62(id)
+
 	// Make short url from generated url name
-	url.ShortUrl = os.Getenv("HOST") + ":" + os.Getenv("PORT") + "/" + randString
+	url.ShortUrl = os.Getenv("HOST") + ":" + os.Getenv("PORT") + "/" + urlName
 	return url, nil
 }
 
 // Redirect find original url by url unique name and redirect into
 func (us *urlService) Redirect(urlName string) (string, error) {
+	// Get url id from converting urlName to base10
+	id, err := helper.ToBase10(urlName)
+	if err != nil {
+		us.logger.Error("Error: ", err)
+		return "", err
+	}
+
 	// Get original url by url name
-	url, db := us.urlRepository.GetByName(urlName)
+	url, db := us.urlRepository.GetByID(id)
 	if db.Error != nil {
 		// Check database error type and handle
 		if errors.Is(db.Error, gorm.ErrRecordNotFound) {

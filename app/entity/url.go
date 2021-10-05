@@ -9,6 +9,5 @@ type Url struct {
 	ID          uint64 `gorm:"column:id;primaryKey;autoIncrement"`
 	Title       string `gorm:"<-;column:title;type:varchar(255);not null;comment:title of the URL;example:google"`
 	OriginalUrl string `gorm:"<-;column:original_url;type:varchar(255);not null;comment:the Url that we want to redirect to;example:http://google.com"`
-	UrlName     string `gorm:"<-;column:url_name;type:varchar(255);not null;unique;comment:name of the Url that we want to redirect to;example:xwyut2E"`
 	gorm.Model
 }
