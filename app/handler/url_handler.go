@@ -75,9 +75,11 @@ func (uh *urlHandler) Redirect(w http.ResponseWriter, r *http.Request) {
 		case "404":
 			// Return 404 error
 			helper.FailureResponse(w, "not found", "url not found", nil, http.StatusNotFound)
+			return
 		default:
 			// Return 500 error for unhandled errors
 			helper.FailureResponse(w, "error", err.Error(), nil, http.StatusInternalServerError)
+			return
 		}
 	}
 

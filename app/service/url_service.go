@@ -35,7 +35,6 @@ func NewUrlService(l logrus.Logger, ur repository.UrlRepository) UrlService {
 func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl, error) {
 	// Create url entity from CreateShortUrl DTO
 	var ue = entity.Url{
-		Title:       url.Title,
 		OriginalUrl: url.OriginalUrl,
 	}
 

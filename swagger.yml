@@ -32,7 +32,6 @@ paths:
                         examples:
                             CreateUrl:
                                 value:
-                                    title: "google"
                                     original_url: "http://google.com"
             responses:
                 '201':
@@ -44,7 +43,6 @@ paths:
                                 \"message\": \"created\",
                                 \"errors\": null,
                                 \"data\": {
-                                    \"title\": \"google\",
                                     \"original_url\": \"http://google.com\",
                                     \"short_url\": \"localhost:9000/QSsfgcEt\"
                                 }
@@ -58,7 +56,7 @@ paths:
                                 \"status\": false,
                                 \"message\": \"bad request\",
                                 \"errors\": [
-                                  \"Title is a required field!\"
+                                  \"OriginalUrl is a required field!\"
                                 ],
                                 \"data\": null
                             }"
@@ -81,10 +79,7 @@ components:
             title: Create Url
             type: object
             properties:
-                title:
-                  type: string
                 original_url:
                   type: string
             required:
-                - mobile
                 - original_url

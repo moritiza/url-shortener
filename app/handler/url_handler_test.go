@@ -28,7 +28,7 @@ var (
 
 func TestCreateShortUrl(t *testing.T) {
 	var (
-		jsonString = []byte(`{"title":"google", "original_url":"http://google.com"}`)
+		jsonString = []byte(`{"original_url":"http://google.com"}`)
 		response   helper.Response
 		url        dto.CreateShortUrl
 	)
@@ -68,11 +68,10 @@ func TestCreateShortUrl(t *testing.T) {
 		t.Fatalf("Response data is empty")
 	}
 
-	url.Title = response.Data.(map[string]interface{})["title"].(string)
 	url.OriginalUrl = response.Data.(map[string]interface{})["original_url"].(string)
 	url.ShortUrl = response.Data.(map[string]interface{})["short_url"].(string)
 
-	if url.Title != "google" || url.OriginalUrl != "http://google.com" || url.ShortUrl == "" {
+	if url.OriginalUrl != "http://google.com" || url.ShortUrl == "" {
 		t.Fatalf("Unexpected Response")
 	}
 
