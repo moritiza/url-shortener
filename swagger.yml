@@ -19,8 +19,8 @@ host: localhost:9000
 paths:
     /api/create-url:
         post:
-            summary: انجام عملیات ثبت آدرس
-            description: میتوانید آدرس مورد نظر را اضافه کرده و آدرس کوتاه شده آن را دریافت کنید.
+            summary: Create Short Url
+            description: You can send url and get shortened url
             tags:
                 - Url
             requestBody:
@@ -35,7 +35,7 @@ paths:
                                     original_url: "http://google.com"
             responses:
                 '201':
-                    description: created
+                    description: Created
                     content:
                         application/json:
                             example: "{
@@ -57,6 +57,58 @@ paths:
                                 \"message\": \"bad request\",
                                 \"errors\": [
                                   \"OriginalUrl is a required field!\"
+                                ],
+                                \"data\": null
+                            }"
+
+                '500':
+                    description: error
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": false,
+                                \"message\": \"error\",
+                                \"errors\": \"an error has occurred\",
+                                \"data\": null
+                            }"
+
+    /api/{url_name}:
+        get:
+            summary: Get url detail
+            description: You can send name of shortened url and get url detail like click count
+            tags:
+                - Url
+            parameters:
+                - in: path
+                  name: url_name
+                  schema:
+                    type: string
+                  required: true
+                  description: Shortened url name
+            responses:
+                '200':
+                    description: OK
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": true,
+                                \"message\": \"ok\",
+                                \"errors\": null,
+                                \"data\": {
+                                    \"original_url\": \"http://google.com\",
+                                    \"click\": 256
+                                }
+                            }"
+
+                '404':
+                    description: Not Found
+                    content:
+                        application/json:
+                            example: "{
+                                \"status\": false,
+                                \"message\": \"not found\",
+                                \"errors\": [
+                                  \"url not found\"
                                 ],
                                 \"data\": null
                             }"

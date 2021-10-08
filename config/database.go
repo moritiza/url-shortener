@@ -18,7 +18,10 @@ func ConnectDatabase(cfg Config) *gorm.DB {
 		" sslmode=" + os.Getenv("DB_SSL_MODE") +
 		" TimeZone=" + os.Getenv("DB_TIME_ZONE")
 
-	return connector(cfg, dsn)
+	db := connector(cfg, dsn)
+	db.AutoMigrate(entity.Url{})
+
+	return db
 }
 
 // Connect to test PostgreSQL
@@ -31,7 +34,11 @@ func ConnectTestDatabase(cfg Config) *gorm.DB {
 		" sslmode=" + os.Getenv("TEST_DB_SSL_MODE") +
 		" TimeZone=" + os.Getenv("TEST_DB_TIME_ZONE")
 
-	return connector(cfg, dsn)
+	db := connector(cfg, dsn)
+	db.Migrator().DropTable(entity.Url{})
+	db.AutoMigrate(entity.Url{})
+
+	return db
 }
 
 // Connector for PostgreSQL
@@ -40,8 +47,6 @@ func connector(cfg Config, dsn string) *gorm.DB {
 	if err != nil {
 		cfg.Logger.Fatalf("Could not connect to the database!\n%v", err)
 	}
-
-	db.AutoMigrate(entity.Url{})
 
 	return db
 }

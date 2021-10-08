@@ -43,7 +43,7 @@ curl -X GET "http://localhost:9000/api/ping" -H "Accept: application/json"
 <hr>
 
 ### URL section
-#### #1 Create new short link
+#### #1 Create new short url
 ```bash
 curl -X POST "http://localhost:9000/api/create-url" -H "Content-Type: application/json" -H "Accept: application/json" -d '{"original_url": "http://google.com"}'
 ```
@@ -60,8 +60,25 @@ curl -X POST "http://localhost:9000/api/create-url" -H "Content-Type: applicatio
 }
 ```
 
-#### #2 Use from the short link
+#### #2 Use from the short url
 ##### Open 'short_url' value in the browser and you will be redirected to 'original_url'! :sunglasses:
+
+#### #3 Get short url detail
+```bash
+curl -X GET "http://localhost:9000/api/{url_name}" -H "Accept: application/json"
+```
+##### Result sample:
+```json
+{
+  "status": true,
+  "message": "ok",
+  "errors": null,
+  "data": {
+    "original_url": "http://google.com",
+    "click": 3
+  }
+}
+```
 
 <hr>
 

@@ -23,6 +23,7 @@ func Router(cfg config.Config) *mux.Router {
 	}).Methods(http.MethodGet)
 
 	s.HandleFunc("/create-url", d.Handlers.UrlHandler.CreateShortUrl).Methods(http.MethodPost)
+	s.HandleFunc("/{url_name}", d.Handlers.UrlHandler.GetShortUrlDetail).Methods(http.MethodGet)
 
 	return r
 }

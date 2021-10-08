@@ -14,7 +14,6 @@ import (
 	"github.com/moritiza/url-shortener/app/helper"
 	"github.com/moritiza/url-shortener/app/repository"
 	"github.com/moritiza/url-shortener/app/service"
-	"github.com/moritiza/url-shortener/config"
 	"github.com/moritiza/url-shortener/test"
 )
 
@@ -40,7 +39,6 @@ func TestCreateShortUrl(t *testing.T) {
 
 	rec := httptest.NewRecorder()
 	cfg := test.Prepare()
-	defer config.DisconnectDatabase(cfg)
 
 	testUrlRepository = repository.NewUrlRepository(cfg.Database)
 	testUrlService = service.NewUrlService(*cfg.Logger, testUrlRepository)
@@ -98,12 +96,6 @@ func TestRedirect(t *testing.T) {
 
 	req = mux.SetURLVars(req, vars)
 	rec := httptest.NewRecorder()
-	cfg := test.Prepare()
-	defer config.DisconnectDatabase(cfg)
-
-	testUrlRepository = repository.NewUrlRepository(cfg.Database)
-	testUrlService = service.NewUrlService(*cfg.Logger, testUrlRepository)
-	testUrlHandler = NewUrlHandler(*cfg.Logger, *cfg.Validator, testUrlService)
 
 	testUrlHandler.Redirect(rec, req)
 	res := rec.Result()
@@ -111,5 +103,63 @@ func TestRedirect(t *testing.T) {
 
 	if res.StatusCode != http.StatusSeeOther {
 		t.Fatalf("Expected status see other (303); got %v", res.StatusCode)
+	}
+}
+
+func TestGetShortUrlDetail(t *testing.T) {
+	var (
+		response helper.Response
+		detail   dto.GetShortUrlDetail
+	)
+
+	if shortUrl == "" {
+		TestCreateShortUrl(t)
+	}
+
+	shortUrlParts := strings.Split(shortUrl, "/")
+	urlName := string(shortUrlParts[len(shortUrlParts)-1])
+
+	req, err := http.NewRequest(http.MethodGet, "/api/"+urlName, nil)
+	if err != nil {
+		t.Fatalf("Could not create request: %v", err)
+	}
+
+	// Fake gorilla/mux vars
+	vars := map[string]string{
+		"url_name": urlName,
+	}
+
+	req = mux.SetURLVars(req, vars)
+	rec := httptest.NewRecorder()
+
+	testUrlHandler.GetShortUrlDetail(rec, req)
+	res := rec.Result()
+	defer res.Body.Close()
+
+	if res.StatusCode != http.StatusOK {
+		t.Fatalf("Expected status OK; got %v", res.StatusCode)
+	}
+
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		t.Fatalf("Could not read response: %v", err)
+	}
+
+	err = json.Unmarshal(b, &response)
+	if err != nil {
+		t.Fatalf("Response is invalid. Error: %v", err)
+	}
+
+	if response.Data == nil {
+		t.Fatalf("Response data is empty")
+	}
+
+	detail.OriginalUrl = response.Data.(map[string]interface{})["original_url"].(string)
+	detail.Click = uint64(response.Data.(map[string]interface{})["click"].(float64))
+
+	clickValues := map[uint64]bool{0: true, 1: true}
+
+	if detail.OriginalUrl != "http://google.com" || !clickValues[detail.Click] {
+		t.Fatalf("Unexpected Response")
 	}
 }

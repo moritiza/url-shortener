@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"os"
 
 	"github.com/moritiza/url-shortener/app/dto"
@@ -9,12 +8,12 @@ import (
 	"github.com/moritiza/url-shortener/app/helper"
 	"github.com/moritiza/url-shortener/app/repository"
 	"github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type UrlService interface {
 	CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl, error)
 	Redirect(urlName string) (string, error)
+	GetShortUrlDetail(urlName string) (dto.GetShortUrlDetail, error)
 }
 
 // urlService satisfy UrlService interface
@@ -45,7 +44,7 @@ func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl
 		return dto.CreateShortUrl{}, db.Error
 	}
 
-	// Create base62 urlName with inserted url id
+	// Create base62 url unique name with inserted url id
 	urlName := helper.ToBase62(id)
 
 	// Make short url from generated url name
@@ -55,23 +54,49 @@ func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl
 
 // Redirect find original url by url unique name and redirect into
 func (us *urlService) Redirect(urlName string) (string, error) {
-	// Get url id from converting urlName to base10
-	id, err := helper.ToBase10(urlName)
+	// Get url by url name
+	url, err := us.getUrl(urlName)
 	if err != nil {
-		us.logger.Error("Error: ", err)
 		return "", err
 	}
 
-	// Get original url by url name
-	url, db := us.urlRepository.GetByID(id)
+	// Increment url click one unit
+	db := us.urlRepository.IncrementUrlClick(url.ID)
 	if db.Error != nil {
-		// Check database error type and handle
-		if errors.Is(db.Error, gorm.ErrRecordNotFound) {
-			return "", errors.New("404")
-		}
-
+		us.logger.Error("Error: ", db.Error)
 		return "", db.Error
 	}
 
 	return url.OriginalUrl, nil
+}
+
+// GetShortUrlDetail get url by url unique name and return url detail
+func (us *urlService) GetShortUrlDetail(urlName string) (dto.GetShortUrlDetail, error) {
+	// Get url by url name
+	url, err := us.getUrl(urlName)
+	if err != nil {
+		return dto.GetShortUrlDetail{}, err
+	}
+
+	// Prepare and return GetShortUrlDetail DTO
+	return dto.GetShortUrlDetail{OriginalUrl: url.OriginalUrl, Click: url.Click}, nil
+}
+
+// getUrl get url by url unique name
+func (us *urlService) getUrl(urlName string) (entity.Url, error) {
+	// Get url id from converting urlName to base10
+	id, err := helper.ToBase10(urlName)
+	if err != nil {
+		us.logger.Error("Error: ", err)
+		return entity.Url{}, err
+	}
+
+	// Get url by url id
+	url, db := us.urlRepository.GetByID(id)
+	if db.Error != nil {
+		us.logger.Error("Error: ", db.Error)
+		return entity.Url{}, db.Error
+	}
+
+	return url, nil
 }
