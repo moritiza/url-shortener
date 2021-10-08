@@ -45,7 +45,7 @@ curl -X GET "http://localhost:9000/api/ping" -H "Accept: application/json"
 ### URL section
 #### #1 Create new short link
 ```bash
-curl -X POST "http://localhost:9000/api/create-url" -H "Content-Type: application/json" -H "Accept: application/json" -d '{"title": "google", "original_url": "http://google.com"}'
+curl -X POST "http://localhost:9000/api/create-url" -H "Content-Type: application/json" -H "Accept: application/json" -d '{"original_url": "http://google.com"}'
 ```
 ##### Result sample:
 ```json
@@ -54,7 +54,6 @@ curl -X POST "http://localhost:9000/api/create-url" -H "Content-Type: applicatio
   "message": "created",
   "errors": null,
   "data": {
-    "title": "google",
     "original_url": "http://google.com",
     "short_url": "http://localhost:9000/OZcovl3I"
   }
