@@ -40,7 +40,7 @@ func (us *urlService) CreateShortUrl(url dto.CreateShortUrl) (dto.CreateShortUrl
 	// Insert new url to urls table
 	id, db := us.urlRepository.Create(ue)
 	if db.Error != nil {
-		us.logger.Error("Error: ", db.Error)
+		us.logger.Error(db.Error)
 		return dto.CreateShortUrl{}, db.Error
 	}
 
@@ -63,7 +63,7 @@ func (us *urlService) Redirect(urlName string) (string, error) {
 	// Increment url click one unit
 	db := us.urlRepository.IncrementUrlClick(url.ID)
 	if db.Error != nil {
-		us.logger.Error("Error: ", db.Error)
+		us.logger.Error(db.Error)
 		return "", db.Error
 	}
 
@@ -87,14 +87,14 @@ func (us *urlService) getUrl(urlName string) (entity.Url, error) {
 	// Get url id from converting urlName to base10
 	id, err := helper.ToBase10(urlName)
 	if err != nil {
-		us.logger.Error("Error: ", err)
+		us.logger.Error(err)
 		return entity.Url{}, err
 	}
 
 	// Get url by url id
 	url, db := us.urlRepository.GetByID(id)
 	if db.Error != nil {
-		us.logger.Error("Error: ", db.Error)
+		us.logger.Error(db.Error)
 		return entity.Url{}, db.Error
 	}
 
